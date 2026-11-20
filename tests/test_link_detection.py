@@ -3,6 +3,9 @@ from services.links.detection import detect_supported_service, extract_supported
 
 def test_detect_supported_service_covers_all_supported_group_guard_links():
     assert detect_supported_service("https://www.instagram.com/p/demo") == "instagram"
+    assert detect_supported_service("https://www.facebook.com/reel/1234567890") == "facebook"
+    assert detect_supported_service("https://www.facebook.com/share/r/AbCdEf/") == "facebook"
+    assert detect_supported_service("https://fb.watch/abc123/") == "facebook"
     assert detect_supported_service("https://www.threads.com/@demo/post/Abc_123") == "threads"
     assert detect_supported_service("https://www.tiktok.com/@demo/video/1") == "tiktok"
     assert detect_supported_service("https://soundcloud.com/artist/track") == "soundcloud"
@@ -57,3 +60,18 @@ def test_extract_supported_links_canonicalizes_tracking_query_params():
         ("instagram", "https://www.instagram.com/reel/abc/"),
         ("youtube", "https://www.youtube.com/watch?v=abc123&t=30"),
     ]
+
+
+def test_extract_facebook_links_preserves_video_id_and_normalizes_reels():
+    assert extract_supported_link("https://www.facebook.com/reels/987654321/?mibextid=abc") == (
+        "facebook",
+        "https://www.facebook.com/reel/987654321/",
+    )
+    assert extract_supported_link("https://www.facebook.com/watch/?v=123456789&mibextid=xyz") == (
+        "facebook",
+        "https://www.facebook.com/watch/?v=123456789",
+    )
+    assert extract_supported_link("https://fb.watch/demo123/?mibextid=xyz") == (
+        "facebook",
+        "https://fb.watch/demo123/",
+    )

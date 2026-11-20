@@ -8,6 +8,7 @@ def welcome_message():
         "Send one link, or paste several links in one message, and I'll download what I can.\n\n"
         "<b>Supported sites</b>\n"
         '<tg-emoji emoji-id="5233671414023753035">📷</tg-emoji> Instagram\n'
+        '📘 Facebook Reels\n'
         '<tg-emoji emoji-id="5370693953236539466">🧵</tg-emoji> Threads\n'
         '<tg-emoji emoji-id="5233597424622144804">🎵</tg-emoji> TikTok\n'
         '<tg-emoji emoji-id="5233311027612913110">▶️</tg-emoji> YouTube\n'
@@ -291,8 +292,9 @@ def help_message(bot_username: str | None = None) -> str:
     return (
         "<b>📖 MaxLoad Help & Guide</b>\n\n"
         "Send one link or paste multiple links in one message. The bot will automatically extract and deliver the media.\n\n"
-        "<blockquote expandable><b>📷 Instagram & Threads</b>\n"
+        "<blockquote expandable><b>📷 Instagram, Facebook & Threads</b>\n"
         "• Download Posts, Reels, IGTV & Stories\n"
+        "• Facebook Reels, Watch & fb.watch videos\n"
         "• Photo carousels & multi-media albums\n"
         "• Copy link via Share → Copy link</blockquote>\n\n"
         "<blockquote expandable><b>🎵 TikTok</b>\n"
@@ -377,7 +379,7 @@ def guest_help_message(bot_username: str) -> str:
         "👋 <b>MaxLoad — Guest Mode</b>\n\n"
         "You summoned the bot in this chat! To download media, mention me with a link from any supported platform:\n\n"
         "• <b>TikTok</b> (videos, photos)\n"
-        "• <b>Instagram & Threads</b> (reels, photos)\n"
+        "• <b>Instagram, Facebook & Threads</b> (reels, photos)\n"
         "• <b>YouTube</b> (videos, music)\n"
         "• <b>Twitter / X</b> (videos, gifs)\n"
         "• <b>SoundCloud & Spotify</b> (music)\n"
@@ -396,5 +398,5 @@ def guest_downloading_status(service_name: str) -> str:
 def guest_unsupported_link() -> str:
     return (
         "Sorry, no supported media link was found in your mention. "
-        "Please include a link from TikTok, Instagram, YouTube, X, SoundCloud, Spotify, or Pinterest."
+        "Please include a link from TikTok, Instagram, Facebook, YouTube, X, SoundCloud, Spotify, or Pinterest."
     )

@@ -39,6 +39,7 @@ AVAILABLE_SERVICES: list[tuple[str, str]] = [
     ("all", "🌐 All Services"),
     ("tiktok", "🎵 TikTok"),
     ("instagram", "📸 Instagram"),
+    ("facebook", "📘 Facebook"),
     ("youtube", "▶️ YouTube"),
     ("youtube_audio", "🎶 YouTube Audio"),
     ("twitter", "🐦 Twitter"),
@@ -51,6 +52,7 @@ AVAILABLE_SERVICES: list[tuple[str, str]] = [
 SERVICE_ICONS: dict[str, str] = {
     "tiktok": "🎵",
     "instagram": "📸",
+    "facebook": "📘",
     "youtube": "▶️",
     "youtube_audio": "🎶",
     "youtube_music": "🎶",

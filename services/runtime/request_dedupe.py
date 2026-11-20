@@ -11,6 +11,7 @@ from config import (
     REQUEST_DEDUPE_COMPLETED_TTL_SECONDS,
     REQUEST_DEDUPE_MAX_ENTRIES,
 )
+from services.platforms.facebook_media import strip_facebook_url
 from services.platforms.instagram_media import strip_instagram_url
 from services.platforms.pinterest_media import strip_pinterest_url
 from services.platforms.soundcloud_media import strip_soundcloud_url
@@ -40,6 +41,8 @@ def normalize_request_url(service: str, url: str) -> str:
 
     if normalized_service == "instagram":
         return _normalize_generic_url(strip_instagram_url(raw_url))
+    if normalized_service == "facebook":
+        return _normalize_generic_url(strip_facebook_url(raw_url))
     if normalized_service == "pinterest":
         return _normalize_generic_url(strip_pinterest_url(raw_url))
     if normalized_service == "soundcloud":

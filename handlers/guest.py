@@ -41,6 +41,10 @@ def _get_service_sender(service: str):
         from handlers.instagram import _send_inline_instagram_video
 
         return _send_inline_instagram_video
+    if service == "facebook":
+        from handlers.facebook import _send_inline_facebook_video
+
+        return _send_inline_facebook_video
     if service == "twitter":
         from handlers.twitter import _send_inline_twitter_media
 

@@ -25,6 +25,7 @@ logging = logging.bind(service="media_download")
 _MAX_BATCH_LINKS = max(1, int(BATCH_LINKS_MAX_ITEMS))
 _ALBUM_SERVICES = {
     "instagram",
+    "facebook",
     "threads",
     "tiktok",
     "pinterest",
@@ -97,6 +98,11 @@ async def _process_supported_link(message: types.Message, service: str, url: str
     if service == "instagram":
         from handlers import instagram
         await instagram.process_instagram_url(message, url=url)
+        return
+
+    if service == "facebook":
+        from handlers import facebook
+        await facebook.process_facebook_url(message, url=url)
         return
 
     if service == "threads":

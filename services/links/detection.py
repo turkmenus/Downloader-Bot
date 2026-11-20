@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
+from services.platforms.facebook_media import FACEBOOK_URL_REGEX, strip_facebook_url
+
 
 _TRAILING_URL_PUNCTUATION = ".,;:!?)]}>\"'"
 
@@ -14,6 +16,10 @@ _SERVICE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "instagram",
         re.compile(r"(https?://(www\.)?instagram\.com/\S+)", re.IGNORECASE),
+    ),
+    (
+        "facebook",
+        re.compile(FACEBOOK_URL_REGEX, re.IGNORECASE),
     ),
     (
         "threads",
@@ -75,6 +81,8 @@ def canonicalize_supported_url(service: str, url: str) -> str:
             if key in {"v", "list", "t", "start"}:
                 keep.append((key, value))
         query = urlencode(keep)
+    elif service == "facebook":
+        return strip_facebook_url(cleaned)
     elif service in {"soundcloud", "spotify"}:
         # Audio links keep meaningful path IDs/slugs; tracking lives in query/fragment.
         query = ""
