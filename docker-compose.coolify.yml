@@ -12,12 +12,17 @@ services:
       CUSTOM_API_URL: ${CUSTOM_API_URL:-http://tg-bot-api:8081}
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://bot_user:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/downloader_bot}
       YTDLP_YOUTUBE_COOKIES_FILE: ${YTDLP_YOUTUBE_COOKIES_FILE:-cookies/youtube.txt}
+      COBALT_API_URL: ${COBALT_API_URL:-http://cobalt:9000}
+      COBALT_API_KEY: ${COBALT_API_KEY:?COBALT_API_KEY is required}
+      COBALT_API_URL_DANGER_ACCEPT_INSECURE: ${COBALT_API_URL_DANGER_ACCEPT_INSECURE:-true}
     volumes:
       - downloader_downloads:/app/downloads
       - downloader_log:/app/logs
       - downloader_cookies:/app/cookies
     depends_on:
       postgres:
+        condition: service_healthy
+      cobalt:
         condition: service_healthy
     networks:
       - default
@@ -37,6 +42,39 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
+
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:11
+    init: true
+    environment:
+      API_URL: ${COBALT_PUBLIC_URL:-http://cobalt:9000/}
+      API_PORT: "9000"
+      API_AUTH_REQUIRED: "1"
+      API_KEY_URL: file:///tmp/keys.json
+      COBALT_API_KEY: ${COBALT_API_KEY:?COBALT_API_KEY is required}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        node -e 'const fs=require("fs"),k=process.env.COBALT_API_KEY;fs.writeFileSync("/tmp/keys.json",JSON.stringify({[k]:{name:"downloader-bot",limit:"unlimited"}}))'
+        exec node src/cobalt
+    networks:
+      - default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
 
   postgres:
     image: postgres:17-alpine
