@@ -71,9 +71,13 @@ def test_prepare_series_for_year_aggregates_fixed_month_axis(monkeypatch):
 
 
 def test_build_stats_caption_empty():
-    caption = chart.build_stats_caption("Week", StatsSnapshot())
+    caption = chart.build_stats_caption("Week", StatsSnapshot(), language="en")
     assert "Statistics for Week" in caption
     assert "No downloads recorded" in caption
+
+    caption_tr = chart.build_stats_caption("Week", StatsSnapshot(), language="tr")
+    assert "Haftalık İstatistikleri" in caption_tr
+    assert "indirme kaydedilmedi" in caption_tr
 
 
 def test_build_stats_caption_split_includes_top_platforms():
@@ -89,7 +93,7 @@ def test_build_stats_caption_split_includes_top_platforms():
         total_downloads=10,
     )
 
-    caption = chart.build_stats_caption("Month", snapshot, "split")
+    caption = chart.build_stats_caption("Month", snapshot, "split", language="en")
 
     assert "Total downloads: <b>10</b>" in caption
     assert "<b>Top platforms</b>" in caption

@@ -21,8 +21,15 @@ AUDIO_FORMAT_VALUES: Final[frozenset[str]] = frozenset(
     {AUDIO_FORMAT_MP3, AUDIO_FORMAT_M4A, AUDIO_FORMAT_BEST}
 )
 
+LANGUAGE_TR: Final[str] = "tr"
+LANGUAGE_RU: Final[str] = "ru"
+LANGUAGE_EN: Final[str] = "en"
+LANGUAGE_VALUES: Final[frozenset[str]] = frozenset(
+    {LANGUAGE_TR, LANGUAGE_RU, LANGUAGE_EN}
+)
+
 SETTING_VALUES: Final[frozenset[str]] = frozenset(
-    TOGGLE_SETTING_VALUES | VIDEO_QUALITY_VALUES | AUDIO_FORMAT_VALUES
+    TOGGLE_SETTING_VALUES | VIDEO_QUALITY_VALUES | AUDIO_FORMAT_VALUES | LANGUAGE_VALUES
 )
 
 SETTING_FIELDS: Final[tuple[str, ...]] = (
@@ -35,6 +42,7 @@ SETTING_FIELDS: Final[tuple[str, ...]] = (
     "url_button",
     "audio_button",
     "file_button",
+    "language",
 )
 
 SETTING_LABELS: Final[tuple[tuple[str, str], ...]] = (
@@ -47,6 +55,7 @@ SETTING_LABELS: Final[tuple[tuple[str, str], ...]] = (
     ("📄 File Button", "file_button"),
     ("🔗 URL Button", "url_button"),
     ("🗑️ Delete Messages", "delete_message"),
+    ("🌐 Language", "language"),
 )
 
 

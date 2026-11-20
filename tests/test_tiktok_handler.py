@@ -477,7 +477,7 @@ async def test_inline_tiktok_query_returns_send_button(monkeypatch):
     assert len(results) == 1
     result = results[0]
     assert result.title == "TikTok Video"
-    assert result.reply_markup.inline_keyboard[0][0].text == "Send video inline"
+    assert result.reply_markup.inline_keyboard[0][0].text == "Videoyu inline gönder"
     assert (
         result.reply_markup.inline_keyboard[0][0].callback_data
         == f"inline:tiktok:{result.id.removeprefix('tiktok_inline:')}"
@@ -595,8 +595,8 @@ async def test_inline_tiktok_query_returns_send_button_for_single_photo(monkeypa
     results = query.answer.await_args.args[0]
     assert len(results) == 1
     result = results[0]
-    assert result.title == "TikTok Photo"
-    assert result.reply_markup.inline_keyboard[0][0].text == "Send photo inline"
+    assert result.title == "TikTok Fotoğraf"
+    assert result.reply_markup.inline_keyboard[0][0].text == "Fotoğrafı inline gönder"
     assert result.thumbnail_url == "https://example.com/photo.jpg"
     token = result.id.removeprefix("tiktok_inline:")
     request = get_inline_video_request(token)
@@ -886,7 +886,7 @@ async def test_send_inline_tiktok_video_callback_requires_inline_message_id():
     await tiktok.send_inline_tiktok_video_callback(call)
 
     call.answer.assert_awaited_once_with(
-        "This button works only in inline mode.", show_alert=True
+        "Bu buton yalnızca inline modda çalışır.", show_alert=True
     )
 
 

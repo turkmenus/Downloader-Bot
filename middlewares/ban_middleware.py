@@ -4,10 +4,18 @@ from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery, InlineQuery
 
 from app_context import db
+from services.i18n import tr_text
 
-_ACCESS_TEMPORARILY_UNAVAILABLE = (
-    "Service is temporarily unavailable. Please try again later."
-)
+_ACCESS_TEMPORARILY_UNAVAILABLE = {
+    "tr": "Hizmet geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+    "ru": "Сервис временно недоступен. Пожалуйста, попробуйте позже.",
+    "en": "Service is temporarily unavailable. Please try again later.",
+}
+_BANNED_MESSAGE = {
+    "tr": "Yasaklandınız. Daha fazla bilgi için lütfen @mak5er ile iletişime geçin.",
+    "ru": "Вы заблокированы. За дополнительной информацией обратитесь к @mak5er.",
+    "en": "You are banned please contact to @mak5er for more information!",
+}
 
 
 class UserBannedMiddleware(BaseMiddleware):
@@ -36,14 +44,14 @@ class UserBannedMiddleware(BaseMiddleware):
         if user_status == "ban":
             if message.chat.type == "private":
                 await message.answer(
-                    ("You are banned please contact to @mak5er for more information!"),
+                    tr_text(_BANNED_MESSAGE),
                     parse_mode="HTML",
                 )
             data["_skip_handler"] = True
             return
         if user_status == "restricted":
             if message.chat.type == "private":
-                await message.answer(_ACCESS_TEMPORARILY_UNAVAILABLE)
+                await message.answer(tr_text(_ACCESS_TEMPORARILY_UNAVAILABLE))
             data["_skip_handler"] = True
             return
 
@@ -53,14 +61,14 @@ class UserBannedMiddleware(BaseMiddleware):
         user_status = await self._get_status(callback_query.from_user.id)
         if user_status == "ban":
             await callback_query.answer(
-                ("You are banned please contact to @mak5er for more information!"),
+                tr_text(_BANNED_MESSAGE),
                 show_alert=True,
             )
             data["_skip_handler"] = True
             return
         if user_status == "restricted":
             await callback_query.answer(
-                _ACCESS_TEMPORARILY_UNAVAILABLE, show_alert=True
+                tr_text(_ACCESS_TEMPORARILY_UNAVAILABLE), show_alert=True
             )
             data["_skip_handler"] = True
             return

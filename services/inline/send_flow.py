@@ -373,7 +373,7 @@ async def handle_post_inline_query(
                 types.InlineQueryResultArticle(
                     id=f"{service_key}_text_{post.id}",
                     title=f"{service_name} Post",
-                    description=post.description or f"Text post from {service_name}.",
+                    description=post.description or bm.inline_text_post_desc(service_name),
                     thumbnail_url=get_inline_service_icon(service_key),
                     input_message_content=types.InputTextMessageContent(
                         message_text=bm.captions("on", post.description, bot_url, limit=4096),
@@ -404,14 +404,14 @@ async def handle_post_inline_query(
             results = [
                 types.InlineQueryResultArticle(
                     id=f"{service_key}_inline:{token}",
-                    title=f"{service_name} Photo",
-                    description=post.description or "Press the button to send this photo inline.",
+                    title=bm.inline_photo_title(service_name),
+                    description=post.description or bm.inline_press_to_send_photo(),
                     thumbnail_url=first_preview,
                     input_message_content=types.InputTextMessageContent(
-                        message_text=f"{service_name} photo is being prepared...\nIf it does not start automatically, tap the button below.",
+                        message_text=bm.inline_send_photo_prompt(service_name),
                     ),
                     reply_markup=kb.inline_send_media_keyboard(
-                        "Send photo inline",
+                        bm.inline_send_photo_button(),
                         f"inline:{service_key}:{token}",
                     ),
                 )
@@ -473,9 +473,9 @@ async def handle_post_inline_query(
                 types.InlineQueryResultArticle(
                     id=f"unsupported_{service_key}_content",
                     title=f"{service_name} Content",
-                    description="Only single videos are supported inline.",
+                    description=bm.inline_single_videos_only_desc(),
                     input_message_content=types.InputTextMessageContent(
-                        message_text=f"Only single {service_name} videos are supported inline.",
+                        message_text=bm.inline_single_videos_only_text(service_name),
                     ),
                 )
             ]
@@ -488,13 +488,13 @@ async def handle_post_inline_query(
             types.InlineQueryResultArticle(
                 id=f"{service_key}_inline:{token}",
                 title=f"{service_name} Video",
-                description=post.description or "Press the button to send this video inline.",
+                description=post.description or bm.inline_press_to_send_video(),
                 thumbnail_url=preview_url,
                 input_message_content=types.InputTextMessageContent(
                     message_text=bm.inline_send_video_prompt(service_name),
                 ),
                 reply_markup=kb.inline_send_media_keyboard(
-                    "Send video inline",
+                    bm.inline_send_video_button(),
                     f"inline:{service_key}:{token}",
                 ),
             )

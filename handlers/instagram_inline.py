@@ -89,13 +89,13 @@ async def handle_instagram_inline_query(
                 types.InlineQueryResultArticle(
                     id=f"instagram_inline:{token}",
                     title="Instagram Video",
-                    description=data.description or "Press the button to send this video inline.",
+                    description=data.description or bm.inline_press_to_send_video(),
                     thumbnail_url=preview_url,
                     input_message_content=types.InputTextMessageContent(
                         message_text=bm.inline_send_video_prompt("Instagram"),
                     ),
                     reply_markup=kb.inline_send_media_keyboard(
-                        "Send video inline",
+                        bm.inline_send_video_button(),
                         f"inline:instagram:{token}",
                     ),
                 )
@@ -122,14 +122,14 @@ async def handle_instagram_inline_query(
             results = [
                 types.InlineQueryResultArticle(
                     id=f"instagram_inline:{token}",
-                    title="Instagram Photo",
-                    description=data.description or "Press the button to send this photo inline.",
+                    title=bm.inline_photo_title("Instagram"),
+                    description=data.description or bm.inline_press_to_send_photo(),
                     thumbnail_url=first_preview or first_photo.url,
                     input_message_content=types.InputTextMessageContent(
-                        message_text="Instagram photo is being prepared...\nIf it does not start automatically, tap the button below.",
+                        message_text=bm.inline_send_photo_prompt("Instagram"),
                     ),
                     reply_markup=kb.inline_send_media_keyboard(
-                        "Send photo inline",
+                        bm.inline_send_photo_button(),
                         f"inline:instagram:{token}",
                     ),
                 )

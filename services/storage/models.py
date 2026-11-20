@@ -14,6 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship
 
+from services.i18n import DEFAULT_LANGUAGE
 from services.settings import SETTING_DISABLED
 
 Base = declarative_base()
@@ -28,6 +29,7 @@ DEFAULT_USER_SETTINGS = {
     "video_quality": "best",
     "as_document": SETTING_DISABLED,
     "audio_format": "mp3",
+    "language": DEFAULT_LANGUAGE,
 }
 APP_SCHEMA_TABLES = frozenset(
     {
@@ -151,6 +153,7 @@ class Settings(Base):
     video_quality = Column(Text, default="best", nullable=False)
     as_document = Column(Text, default=SETTING_DISABLED, nullable=False)
     audio_format = Column(Text, default="mp3", nullable=False)
+    language = Column(Text, default=DEFAULT_LANGUAGE, nullable=False)
 
     user = relationship(
         "User",

@@ -24,11 +24,16 @@ from config import (
     ANTIFLOOD_MESSAGE_WINDOW_SECONDS,
     ANTIFLOOD_USER_TTL_SECONDS,
 )
+from services.i18n import tr_text
 from services.logger import logger as logging
 
 logging = logging.bind(service="antiflood")
 
-_FLOOD_MESSAGE = "Too many requests. Please slow down for a few seconds."
+_FLOOD_MESSAGE = {
+    "tr": "Çok fazla istek gönderdiniz. Lütfen birkaç saniye yavaşlayın.",
+    "ru": "Слишком много запросов. Пожалуйста, подождите несколько секунд.",
+    "en": "Too many requests. Please slow down for a few seconds.",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -222,8 +227,9 @@ class AntifloodMiddleware(BaseMiddleware):
         self, event: Any, state: _UserFloodState, now: float
     ) -> None:
         try:
+            flood_text = tr_text(_FLOOD_MESSAGE)
             if self._resolve_event_kind(event) == "callback":
-                await event.answer(_FLOOD_MESSAGE, show_alert=False)
+                await event.answer(flood_text, show_alert=False)
                 return
 
             if self._resolve_event_kind(event) == "inline":
@@ -240,10 +246,22 @@ class AntifloodMiddleware(BaseMiddleware):
                     await event.answer_guest_query(
                         InlineQueryResultArticle(
                             id="flood_limit",
-                            title="Too many requests",
-                            description="Please slow down for a few seconds.",
+                            title=tr_text(
+                                {
+                                    "tr": "Çok fazla istek",
+                                    "ru": "Слишком много запросов",
+                                    "en": "Too many requests",
+                                }
+                            ),
+                            description=tr_text(
+                                {
+                                    "tr": "Lütfen birkaç saniye yavaşlayın.",
+                                    "ru": "Пожалуйста, подождите несколько секунд.",
+                                    "en": "Please slow down for a few seconds.",
+                                }
+                            ),
                             input_message_content=InputTextMessageContent(
-                                message_text=_FLOOD_MESSAGE,
+                                message_text=flood_text,
                             ),
                         )
                     )
@@ -259,7 +277,7 @@ class AntifloodMiddleware(BaseMiddleware):
                 ):
                     return
                 state.last_message_notice_at = now
-                await event.answer(_FLOOD_MESSAGE)
+                await event.answer(flood_text)
         except Exception as exc:
             logging.debug("Failed to notify flood block: error=%s", exc)
 

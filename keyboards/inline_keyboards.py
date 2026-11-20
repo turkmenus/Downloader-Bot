@@ -1,8 +1,9 @@
+from urllib.parse import quote
+
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-
-from urllib.parse import quote
+from services.i18n import tr_text
 
 
 def start_keyboard(
@@ -11,7 +12,13 @@ def start_keyboard(
     username = bot_username or "MaxLoadBot"
     base_link = f"https://t.me/{username}"
 
-    share_text = "Fast downloader bot for Instagram, TikTok, YouTube & more!"
+    share_text = tr_text(
+        {
+            "tr": "Instagram, TikTok, YouTube ve daha fazlası için hızlı medya indirme botu!",
+            "ru": "Быстрый бот для скачивания из Instagram, TikTok, YouTube и других сервисов!",
+            "en": "Fast downloader bot for Instagram, TikTok, YouTube & more!",
+        }
+    )
     share_url = (
         f"https://t.me/share/url?url={quote(base_link)}&text={quote(share_text)}"
     )
@@ -21,15 +28,47 @@ def start_keyboard(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="⚡ Try inline", switch_inline_query_current_chat=""
+                    text=tr_text(
+                        {
+                            "tr": "⚡ Satır içi dene",
+                            "ru": "⚡ Попробовать inline",
+                            "en": "⚡ Try inline",
+                        }
+                    ),
+                    switch_inline_query_current_chat="",
                 ),
                 InlineKeyboardButton(
-                    text="⚙️ Settings", callback_data="back_to_settings"
+                    text=tr_text(
+                        {
+                            "tr": "⚙️ Ayarlar",
+                            "ru": "⚙️ Настройки",
+                            "en": "⚙️ Settings",
+                        }
+                    ),
+                    callback_data="back_to_settings",
                 ),
             ],
             [
-                InlineKeyboardButton(text="🚀 Share bot", url=share_url),
-                InlineKeyboardButton(text="➕ Add to group", url=add_to_group_url),
+                InlineKeyboardButton(
+                    text=tr_text(
+                        {
+                            "tr": "🚀 Botu paylaş",
+                            "ru": "🚀 Поделиться ботом",
+                            "en": "🚀 Share bot",
+                        }
+                    ),
+                    url=share_url,
+                ),
+                InlineKeyboardButton(
+                    text=tr_text(
+                        {
+                            "tr": "➕ Gruba ekle",
+                            "ru": "➕ Добавить в группу",
+                            "en": "➕ Add to group",
+                        }
+                    ),
+                    url=add_to_group_url,
+                ),
             ],
         ]
     )
@@ -85,6 +124,7 @@ FIELD_CATEGORY_MAP = {
     "file_button": "appearance",
     "url_button": "appearance",
     "delete_message": "chat",
+    "language": "root",
 }
 
 
@@ -92,17 +132,44 @@ def return_settings_categories_keyboard() -> InlineKeyboardMarkup:
     buttons = [
         [
             InlineKeyboardButton(
-                text="🎬 Media & Quality", callback_data="settings_cat:media"
+                text=tr_text(
+                    {
+                        "tr": "🎬 Medya ve Kalite",
+                        "ru": "🎬 Медиа и качество",
+                        "en": "🎬 Media & Quality",
+                    }
+                ),
+                callback_data="settings_cat:media",
             )
         ],
         [
             InlineKeyboardButton(
-                text="🎨 Appearance & Buttons", callback_data="settings_cat:appearance"
+                text=tr_text(
+                    {
+                        "tr": "🎨 Görünüm ve Butonlar",
+                        "ru": "🎨 Внешний вид и кнопки",
+                        "en": "🎨 Appearance & Buttons",
+                    }
+                ),
+                callback_data="settings_cat:appearance",
             )
         ],
         [
             InlineKeyboardButton(
-                text="💬 Chat & Clean-up", callback_data="settings_cat:chat"
+                text=tr_text(
+                    {
+                        "tr": "💬 Sohbet ve Temizlik",
+                        "ru": "💬 Чат и очистка",
+                        "en": "💬 Chat & Clean-up",
+                    }
+                ),
+                callback_data="settings_cat:chat",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="🌐 Dil / Язык / Language",
+                callback_data="settings:language",
             )
         ],
     ]
@@ -112,21 +179,102 @@ def return_settings_categories_keyboard() -> InlineKeyboardMarkup:
 def return_category_settings_keyboard(category: str) -> InlineKeyboardMarkup:
     if category == "media":
         fields = [
-            ("🎬 Video Quality", "video_quality"),
-            ("📄 Send as File", "as_document"),
-            ("🎵 Audio Format", "audio_format"),
+            (
+                tr_text(
+                    {
+                        "tr": "🎬 Video Kalitesi",
+                        "ru": "🎬 Качество видео",
+                        "en": "🎬 Video Quality",
+                    }
+                ),
+                "video_quality",
+            ),
+            (
+                tr_text(
+                    {
+                        "tr": "📄 Dosya Olarak Gönder",
+                        "ru": "📄 Отправлять как файл",
+                        "en": "📄 Send as File",
+                    }
+                ),
+                "as_document",
+            ),
+            (
+                tr_text(
+                    {
+                        "tr": "🎵 Ses Formatı",
+                        "ru": "🎵 Формат аудио",
+                        "en": "🎵 Audio Format",
+                    }
+                ),
+                "audio_format",
+            ),
         ]
     elif category == "appearance":
         fields = [
-            ("📝 Descriptions", "captions"),
-            ("ℹ️ Info Buttons", "info_buttons"),
-            ("🎧 MP3 Button", "audio_button"),
-            ("📄 File Button", "file_button"),
-            ("🔗 URL Button", "url_button"),
+            (
+                tr_text(
+                    {
+                        "tr": "📝 Açıklamalar",
+                        "ru": "📝 Описания",
+                        "en": "📝 Descriptions",
+                    }
+                ),
+                "captions",
+            ),
+            (
+                tr_text(
+                    {
+                        "tr": "ℹ️ Bilgi Butonları",
+                        "ru": "ℹ️ Кнопки информации",
+                        "en": "ℹ️ Info Buttons",
+                    }
+                ),
+                "info_buttons",
+            ),
+            (
+                tr_text(
+                    {
+                        "tr": "🎧 MP3 Butonu",
+                        "ru": "🎧 Кнопка MP3",
+                        "en": "🎧 MP3 Button",
+                    }
+                ),
+                "audio_button",
+            ),
+            (
+                tr_text(
+                    {
+                        "tr": "📄 Dosya Butonu",
+                        "ru": "📄 Кнопка файла",
+                        "en": "📄 File Button",
+                    }
+                ),
+                "file_button",
+            ),
+            (
+                tr_text(
+                    {
+                        "tr": "🔗 URL Butonu",
+                        "ru": "🔗 Кнопка URL",
+                        "en": "🔗 URL Button",
+                    }
+                ),
+                "url_button",
+            ),
         ]
     else:
         fields = [
-            ("🗑️ Delete Messages", "delete_message"),
+            (
+                tr_text(
+                    {
+                        "tr": "🗑️ Mesajları Sil",
+                        "ru": "🗑️ Удаление сообщений",
+                        "en": "🗑️ Delete Messages",
+                    }
+                ),
+                "delete_message",
+            ),
         ]
 
     buttons = [
@@ -136,7 +284,14 @@ def return_category_settings_keyboard(category: str) -> InlineKeyboardMarkup:
     buttons.append(
         [
             InlineKeyboardButton(
-                text="⬅️ Back to Categories", callback_data="back_to_settings"
+                text=tr_text(
+                    {
+                        "tr": "⬅️ Kategorilere Dön",
+                        "ru": "⬅️ Назад к категориям",
+                        "en": "⬅️ Back to Categories",
+                    }
+                ),
+                callback_data="back_to_settings",
             )
         ]
     )
@@ -146,17 +301,48 @@ def return_category_settings_keyboard(category: str) -> InlineKeyboardMarkup:
 def return_field_keyboard(field: str, value: str | None):
     val = (value or "").strip().lower()
     cat = FIELD_CATEGORY_MAP.get(field, "media")
-    back_cb = f"settings_cat:{cat}"
+    back_cb = "back_to_settings" if cat == "root" else f"settings_cat:{cat}"
+    back_label = tr_text({"tr": "⬅️ Geri", "ru": "⬅️ Назад", "en": "⬅️ Back"})
+
+    if field == "language":
+        current = val or "tr"
+        opt_tr = "✅ 🇹🇷 Türkçe" if current == "tr" else "🇹🇷 Türkçe"
+        opt_ru = "✅ 🇷🇺 Русский" if current == "ru" else "🇷🇺 Русский"
+        opt_en = "✅ 🇬🇧 English" if current == "en" else "🇬🇧 English"
+        buttons = [
+            [InlineKeyboardButton(text=opt_tr, callback_data="setting:language:tr")],
+            [InlineKeyboardButton(text=opt_ru, callback_data="setting:language:ru")],
+            [InlineKeyboardButton(text=opt_en, callback_data="setting:language:en")],
+            [InlineKeyboardButton(text=back_label, callback_data=back_cb)],
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=buttons)
 
     if field == "video_quality":
         current = val or "best"
-        opt_best = "✅ 🏆 Best (1080p+)" if current == "best" else "🏆 Best (1080p+)"
-        opt_bal = (
-            "✅ ⚖️ Balanced (720p)" if current == "balanced" else "⚖️ Balanced (720p)"
+        lbl_best = tr_text(
+            {
+                "tr": "🏆 En İyi (1080p+)",
+                "ru": "🏆 Максимальное (1080p+)",
+                "en": "🏆 Best (1080p+)",
+            }
         )
-        opt_saver = (
-            "✅ ⚡ Data Saver (480p)" if current == "saver" else "⚡ Data Saver (480p)"
+        lbl_bal = tr_text(
+            {
+                "tr": "⚖️ Dengeli (720p)",
+                "ru": "⚖️ Сбалансированное (720p)",
+                "en": "⚖️ Balanced (720p)",
+            }
         )
+        lbl_saver = tr_text(
+            {
+                "tr": "⚡ Veri Tasarrufu (480p)",
+                "ru": "⚡ Экономия (480p)",
+                "en": "⚡ Data Saver (480p)",
+            }
+        )
+        opt_best = f"✅ {lbl_best}" if current == "best" else lbl_best
+        opt_bal = f"✅ {lbl_bal}" if current == "balanced" else lbl_bal
+        opt_saver = f"✅ {lbl_saver}" if current == "saver" else lbl_saver
 
         buttons = [
             [
@@ -174,17 +360,30 @@ def return_field_keyboard(field: str, value: str | None):
                     text=opt_saver, callback_data="setting:video_quality:saver"
                 )
             ],
-            [InlineKeyboardButton(text="⬅️ Back", callback_data=back_cb)],
+            [InlineKeyboardButton(text=back_label, callback_data=back_cb)],
         ]
         return InlineKeyboardMarkup(inline_keyboard=buttons)
 
     if field == "audio_format":
         current = val or "mp3"
-        opt_mp3 = "✅ 🎧 MP3 Audio" if current == "mp3" else "🎧 MP3 Audio"
-        opt_m4a = "✅ 📱 M4A (AAC)" if current == "m4a" else "📱 M4A (AAC)"
-        opt_best = (
-            "✅ 🎼 FLAC / Original" if current == "best" else "🎼 FLAC / Original"
+        lbl_mp3 = tr_text(
+            {
+                "tr": "🎧 MP3 Ses",
+                "ru": "🎧 MP3 Аудио",
+                "en": "🎧 MP3 Audio",
+            }
         )
+        lbl_m4a = "📱 M4A (AAC)"
+        lbl_best = tr_text(
+            {
+                "tr": "🎼 FLAC / Orijinal",
+                "ru": "🎼 FLAC / Оригинал",
+                "en": "🎼 FLAC / Original",
+            }
+        )
+        opt_mp3 = f"✅ {lbl_mp3}" if current == "mp3" else lbl_mp3
+        opt_m4a = f"✅ {lbl_m4a}" if current == "m4a" else lbl_m4a
+        opt_best = f"✅ {lbl_best}" if current == "best" else lbl_best
 
         buttons = [
             [
@@ -202,14 +401,26 @@ def return_field_keyboard(field: str, value: str | None):
                     text=opt_best, callback_data="setting:audio_format:best"
                 )
             ],
-            [InlineKeyboardButton(text="⬅️ Back", callback_data=back_cb)],
+            [InlineKeyboardButton(text=back_label, callback_data=back_cb)],
         ]
         return InlineKeyboardMarkup(inline_keyboard=buttons)
 
     is_enabled = val == "on"
-    status_text = "🟢 Currently ON" if is_enabled else "🔴 Currently OFF"
+    status_text = (
+        tr_text(
+            {"tr": "🟢 Şu an AÇIK", "ru": "🟢 Сейчас ВКЛ", "en": "🟢 Currently ON"}
+        )
+        if is_enabled
+        else tr_text(
+            {"tr": "🔴 Şu an KAPALI", "ru": "🔴 Сейчас ВЫКЛ", "en": "🔴 Currently OFF"}
+        )
+    )
     next_value = "off" if is_enabled else "on"
-    action_text = "🔴 Turn OFF" if is_enabled else "🟢 Turn ON"
+    action_text = (
+        tr_text({"tr": "🔴 Kapat", "ru": "🔴 Выключить", "en": "🔴 Turn OFF"})
+        if is_enabled
+        else tr_text({"tr": "🟢 Aç", "ru": "🟢 Включить", "en": "🟢 Turn ON"})
+    )
 
     buttons = [
         [InlineKeyboardButton(text=status_text, callback_data="noop")],
@@ -218,7 +429,7 @@ def return_field_keyboard(field: str, value: str | None):
                 text=action_text, callback_data=f"setting:{field}:{next_value}"
             )
         ],
-        [InlineKeyboardButton(text="⬅️ Back", callback_data=back_cb)],
+        [InlineKeyboardButton(text=back_label, callback_data=back_cb)],
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -228,17 +439,42 @@ def return_settings_keyboard():
 
 
 def stats_keyboard(current_period: str = "Week", mode: str = "total"):
+    period_labels = {
+        "Week": tr_text({"tr": "Hafta", "ru": "Неделя", "en": "Week"}),
+        "Month": tr_text({"tr": "Ay", "ru": "Месяц", "en": "Month"}),
+        "Year": tr_text({"tr": "Yıl", "ru": "Год", "en": "Year"}),
+    }
     periods = ["Week", "Month", "Year"]
     period_buttons = [
         InlineKeyboardButton(
-            text=f"[{period}]" if period == current_period else period,
+            text=(
+                f"[{period_labels[period]}]"
+                if period == current_period
+                else period_labels[period]
+            ),
             callback_data=f"stats:{period}:{mode}",
         )
         for period in periods
     ]
 
     toggle_target = "split" if mode == "total" else "total"
-    toggle_label = "View: By platform" if mode == "total" else "View: Overall"
+    toggle_label = (
+        tr_text(
+            {
+                "tr": "Görünüm: Platforma göre",
+                "ru": "Вид: По платформам",
+                "en": "View: By platform",
+            }
+        )
+        if mode == "total"
+        else tr_text(
+            {
+                "tr": "Görünüm: Genel",
+                "ru": "Вид: Общий",
+                "en": "View: Overall",
+            }
+        )
+    )
 
     buttons = [
         period_buttons,
@@ -323,7 +559,20 @@ def return_back_to_history_keyboard() -> InlineKeyboardMarkup:
 
 def start_private_chat_keyboard(bot_username: str):
     url = f"https://t.me/{bot_username}?start=from_group"
-    button = [[InlineKeyboardButton(text="💬 Open bot chat", url=url)]]
+    button = [
+        [
+            InlineKeyboardButton(
+                text=tr_text(
+                    {
+                        "tr": "💬 Bot sohbetini aç",
+                        "ru": "💬 Открыть чат с ботом",
+                        "en": "💬 Open bot chat",
+                    }
+                ),
+                url=url,
+            )
+        ]
+    ]
     return InlineKeyboardMarkup(inline_keyboard=button)
 
 
@@ -331,7 +580,14 @@ def return_audio_download_keyboard(platform, url):
     audio_button = [
         [
             InlineKeyboardButton(
-                text="🎧 Download MP3", callback_data=f"{platform}_audio_{url}"
+                text=tr_text(
+                    {
+                        "tr": "🎧 MP3 İndir",
+                        "ru": "🎧 Скачать MP3",
+                        "en": "🎧 Download MP3",
+                    }
+                ),
+                callback_data=f"{platform}_audio_{url}",
             )
         ]
     ]
@@ -343,7 +599,14 @@ def inline_send_video_keyboard(token: str) -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Send video inline", callback_data=f"inline:tiktok:{token}"
+                    text=tr_text(
+                        {
+                            "tr": "Videoyu inline gönder",
+                            "ru": "Отправить видео",
+                            "en": "Send video inline",
+                        }
+                    ),
+                    callback_data=f"inline:tiktok:{token}",
                 )
             ]
         ]
@@ -444,7 +707,14 @@ def return_video_info_keyboard(
     if user_settings.get("audio_button") == "on" and audio_callback_data:
         builder.row(
             InlineKeyboardButton(
-                text="🎧 Download MP3", callback_data=audio_callback_data
+                text=tr_text(
+                    {
+                        "tr": "🎧 MP3 İndir",
+                        "ru": "🎧 Скачать MP3",
+                        "en": "🎧 Download MP3",
+                    }
+                ),
+                callback_data=audio_callback_data,
             )
         )
 
@@ -455,7 +725,14 @@ def return_video_info_keyboard(
     ):
         builder.row(
             InlineKeyboardButton(
-                text="📄 Download File", callback_data=file_callback_data
+                text=tr_text(
+                    {
+                        "tr": "📄 Dosya İndir",
+                        "ru": "📄 Скачать файл",
+                        "en": "📄 Download File",
+                    }
+                ),
+                callback_data=file_callback_data,
             )
         )
 
@@ -497,10 +774,23 @@ def guest_help_keyboard(bot_username: str | None = None) -> InlineKeyboardMarkup
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="💬 Open in Bot (DM)", url=f"https://t.me/{username}"
+                    text=tr_text(
+                        {
+                            "tr": "💬 Botta Aç (DM)",
+                            "ru": "💬 Открыть в боте (ЛС)",
+                            "en": "💬 Open in Bot (DM)",
+                        }
+                    ),
+                    url=f"https://t.me/{username}",
                 ),
                 InlineKeyboardButton(
-                    text="➕ Add to Group",
+                    text=tr_text(
+                        {
+                            "tr": "➕ Gruba Ekle",
+                            "ru": "➕ Добавить в группу",
+                            "en": "➕ Add to Group",
+                        }
+                    ),
                     url=f"https://t.me/{username}?startgroup=true",
                 ),
             ]

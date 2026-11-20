@@ -4,6 +4,7 @@ from aiogram.exceptions import TelegramBadRequest
 
 import keyboards as kb
 import messages as bm
+from services.i18n import set_current_language
 from services.logger import logger as logging
 from services.settings import parse_setting_toggle_callback, parse_settings_view_callback
 import handlers.user as user_mod
@@ -168,10 +169,19 @@ async def change_setting(call: types.CallbackQuery):
         return
 
     try:
+        if field == "language":
+            set_current_language(value)
         current_value = await user_mod.db.get_user_setting(user_id=target_id, field=field)
         keyboard = kb.return_field_keyboard(field, current_value)
 
-        await call.message.edit_reply_markup(reply_markup=keyboard)
+        if field == "language":
+            await call.message.edit_text(
+                text=bm.get_field_text(field),
+                reply_markup=keyboard,
+                parse_mode="HTML",
+            )
+        else:
+            await call.message.edit_reply_markup(reply_markup=keyboard)
         await call.answer()
     except Exception as exc:
         tb_exc = getattr(user_mod, "TelegramBadRequest", TelegramBadRequest)
@@ -192,7 +202,7 @@ async def change_setting(call: types.CallbackQuery):
                 getattr(getattr(call.message, "chat", None), "id", None),
                 exc,
             )
-            await call.answer("Couldn't update settings right now. Please try again later.", show_alert=True)
+            await call.answer(bm.settings_update_failed(), show_alert=True)
             return
         logging.exception(
             "Failed to refresh settings keyboard: field=%s user_id=%s chat_id=%s error=%s",
@@ -201,7 +211,7 @@ async def change_setting(call: types.CallbackQuery):
             getattr(getattr(call.message, "chat", None), "id", None),
             exc,
         )
-        await call.answer("Couldn't update settings right now. Please try again later.", show_alert=True)
+        await call.answer(bm.settings_update_failed(), show_alert=True)
 
 
 async def noop_callback(call: types.CallbackQuery):

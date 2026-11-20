@@ -191,7 +191,7 @@ async def test_inline_threads_photo_returns_send_button(monkeypatch):
 
     result = query.answer.await_args.args[0][0]
     assert result.id.startswith("threads_inline:")
-    assert result.title == "Threads Photo"
+    assert result.title == "Threads Fotoğraf"
     assert result.reply_markup.inline_keyboard[0][0].callback_data.startswith("inline:threads:")
 
 

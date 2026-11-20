@@ -15,13 +15,14 @@ from matplotlib.ticker import MaxNLocator
 import keyboards as kb
 import messages as bm
 from app_context import db
+from services.i18n import get_current_language, tr_text
 from services.logger import logger as logging
 from services.storage.db import StatsSnapshot
 from services.stats.constants import SERVICE_ORDER, SERVICE_COLORS, SERVICE_EMOJI, VALID_STATS_PERIODS, VALID_STATS_MODES
 
 _STATS_CACHE_TTL_SECONDS = 60.0
 _stats_snapshot_cache: dict[str, tuple[float, StatsSnapshot]] = {}
-_stats_chart_cache: dict[tuple[str, str], tuple[float, bytes]] = {}
+_stats_chart_cache: dict[tuple[str, str, str], tuple[float, bytes]] = {}
 _stats_chart_warmup_tasks: dict[str, asyncio.Task[None]] = {}
 _stats_render_lock = threading.Lock()
 
@@ -112,8 +113,21 @@ def _format_stats_bucket(period: str, bucket: datetime.datetime) -> str:
     return bucket.strftime("%b %d")
 
 
-def _stats_bucket_name(period: str) -> str:
-    return "month" if period == "Year" else "day"
+def _stats_bucket_name(period: str, lang: str | None = None) -> str:
+    if period == "Year":
+        return tr_text({"tr": "ay", "ru": "месяц", "en": "month"}, lang)
+    return tr_text({"tr": "gün", "ru": "день", "en": "day"}, lang)
+
+
+def _stats_period_label(period: str, lang: str | None = None) -> str:
+    labels = {
+        "Week": {"tr": "Haftalık", "ru": "Неделя", "en": "Week"},
+        "Month": {"tr": "Aylık", "ru": "Месяц", "en": "Month"},
+        "Year": {"tr": "Yıllık", "ru": "Год", "en": "Year"},
+    }
+    if period in labels:
+        return tr_text(labels[period], lang)
+    return period
 
 
 def _is_cache_fresh(timestamp: float, ttl_seconds: float = _STATS_CACHE_TTL_SECONDS) -> bool:
@@ -163,8 +177,9 @@ async def fetch_stats_snapshot(period: str) -> StatsSnapshot:
     return snapshot
 
 
-def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes:
-    cache_key = (period, mode)
+def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str, language: str | None = None) -> bytes:
+    lang = language or get_current_language()
+    cache_key = (period, mode, lang)
     cached = _stats_chart_cache.get(cache_key)
     if cached and _is_cache_fresh(cached[0]):
         return cached[1]
@@ -208,16 +223,21 @@ def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes
                     fontweight="bold",
                 )
 
-        bucket_name = _stats_bucket_name(period)
+        bucket_name = _stats_bucket_name(period, lang)
+        period_label = _stats_period_label(period, lang)
         peak_count = max(total_counts) if total_counts else 0
         peak_bucket = _format_stats_bucket(period, total_dates[total_counts.index(peak_count)]) if total_dates else "-"
         average_value = snapshot.total_downloads / len(total_counts) if total_counts else 0.0
-        mode_label = "Overall activity" if mode == "total" else "Platform comparison"
+        mode_label = (
+            tr_text({"tr": "Genel aktivite", "ru": "Общая активность", "en": "Overall activity"}, lang)
+            if mode == "total"
+            else tr_text({"tr": "Platform karşılaştırması", "ru": "Сравнение платформ", "en": "Platform comparison"}, lang)
+        )
 
         fig.text(
             0.08,
             0.92,
-            "Downloads Overview",
+            tr_text({"tr": "İndirme Özeti", "ru": "Обзор загрузок", "en": "Downloads Overview"}, lang),
             color="#F8FAFC",
             fontsize=20,
             fontweight="bold",
@@ -226,7 +246,7 @@ def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes
         fig.text(
             0.08,
             0.875,
-            f"{period} view | {mode_label}",
+            f"{period_label} | {mode_label}",
             color="#94A3B8",
             fontsize=11,
             ha="left",
@@ -234,7 +254,11 @@ def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes
 
         chip_style = dict(boxstyle="round,pad=0.45", facecolor="#0D1728", edgecolor="#22324A", linewidth=1.0)
         chip_positions = [0.66, 0.81, 0.96]
-        chip_titles = ["Total", f"Peak {bucket_name}", "Average"]
+        chip_titles = [
+            tr_text({"tr": "Toplam", "ru": "Всего", "en": "Total"}, lang),
+            tr_text({"tr": f"Zirve {bucket_name}", "ru": f"Пик ({bucket_name})", "en": f"Peak {bucket_name}"}, lang),
+            tr_text({"tr": "Ortalama", "ru": "Среднее", "en": "Average"}, lang),
+        ]
         chip_values = [str(snapshot.total_downloads), f"{peak_bucket} | {peak_count}", f"{average_value:.1f} / {bucket_name}"]
         for x_pos, title, value in zip(chip_positions, chip_titles, chip_values):
             fig.text(
@@ -279,15 +303,36 @@ def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes
                 )
                 legend.get_frame().set_alpha(0.95)
             else:
-                _plot_series(total_dates, total_counts, "#6C5DD3", "Downloads", marker_size=18)
+                _plot_series(
+                    total_dates,
+                    total_counts,
+                    "#6C5DD3",
+                    tr_text({"tr": "İndirmeler", "ru": "Загрузки", "en": "Downloads"}, lang),
+                    marker_size=18,
+                )
         else:
-            _plot_series(total_dates, total_counts, "#38BDF8", "Downloads", annotate_last=True, marker_size=22, fill_alpha=0.18)
+            _plot_series(
+                total_dates,
+                total_counts,
+                "#38BDF8",
+                tr_text({"tr": "İndirmeler", "ru": "Загрузки", "en": "Downloads"}, lang),
+                annotate_last=True,
+                marker_size=22,
+                fill_alpha=0.18,
+            )
 
         if snapshot.total_downloads <= 0:
             ax.text(
                 0.5,
                 0.5,
-                "No downloads yet for this period",
+                tr_text(
+                    {
+                        "tr": "Bu dönem için henüz indirme yok",
+                        "ru": "За этот период загрузок ещё нет",
+                        "en": "No downloads yet for this period",
+                    },
+                    lang,
+                ),
                 transform=ax.transAxes,
                 ha="center",
                 va="center",
@@ -296,8 +341,8 @@ def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes
                 bbox=dict(boxstyle="round,pad=0.6", facecolor="#0D1728", edgecolor="#22324A"),
             )
 
-        ax.set_xlabel("Date", fontsize=11, color="#94A3B8", labelpad=12)
-        ax.set_ylabel("Downloads", fontsize=11, color="#94A3B8", labelpad=10)
+        ax.set_xlabel(tr_text({"tr": "Tarih", "ru": "Дата", "en": "Date"}, lang), fontsize=11, color="#94A3B8", labelpad=12)
+        ax.set_ylabel(tr_text({"tr": "İndirmeler", "ru": "Загрузки", "en": "Downloads"}, lang), fontsize=11, color="#94A3B8", labelpad=10)
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
         if total_dates:
@@ -335,24 +380,62 @@ def render_stats_chart(snapshot: StatsSnapshot, period: str, mode: str) -> bytes
         return chart_bytes
 
 
-def build_stats_caption(period: str, snapshot: StatsSnapshot, mode: str = "total") -> str:
-    header = f"<b>Statistics for {period}</b>"
+def build_stats_caption(period: str, snapshot: StatsSnapshot, mode: str = "total", language: str | None = None) -> str:
+    lang = language or get_current_language()
+    period_label = _stats_period_label(period, lang)
+    header = tr_text(
+        {
+            "tr": f"<b>{period_label} İstatistikleri</b>",
+            "ru": f"<b>Статистика: {period_label}</b>",
+            "en": f"<b>Statistics for {period}</b>",
+        },
+        lang,
+    )
     if snapshot.total_downloads <= 0:
-        return f"{header}\n\nNo downloads recorded for this period yet."
+        empty_text = tr_text(
+            {
+                "tr": "Bu dönem için henüz indirme kaydedilmedi.",
+                "ru": "За этот период загрузок ещё не зафиксировано.",
+                "en": "No downloads recorded for this period yet.",
+            },
+            lang,
+        )
+        return f"{header}\n\n{empty_text}"
 
     dates, counts = _build_series_for_period(snapshot.totals_by_date, period)
     peak_index = max(range(len(counts)), key=counts.__getitem__)
     peak_bucket = _format_stats_bucket(period, dates[peak_index])
     peak_count = counts[peak_index]
-    bucket_name = _stats_bucket_name(period)
+    bucket_name = _stats_bucket_name(period, lang)
     average = snapshot.total_downloads / len(counts) if counts else 0.0
 
     lines = [
         header,
         "",
-        f"Total downloads: <b>{snapshot.total_downloads}</b>",
-        f"Peak {bucket_name}: <b>{peak_bucket}</b> - <b>{peak_count}</b>",
-        f"Average per {bucket_name}: <b>{average:.1f}</b>",
+        tr_text(
+            {
+                "tr": f"Toplam indirme: <b>{snapshot.total_downloads}</b>",
+                "ru": f"Всего загрузок: <b>{snapshot.total_downloads}</b>",
+                "en": f"Total downloads: <b>{snapshot.total_downloads}</b>",
+            },
+            lang,
+        ),
+        tr_text(
+            {
+                "tr": f"En yoğun {bucket_name}: <b>{peak_bucket}</b> - <b>{peak_count}</b>",
+                "ru": f"Пик за {bucket_name}: <b>{peak_bucket}</b> - <b>{peak_count}</b>",
+                "en": f"Peak {bucket_name}: <b>{peak_bucket}</b> - <b>{peak_count}</b>",
+            },
+            lang,
+        ),
+        tr_text(
+            {
+                "tr": f"{bucket_name.capitalize()} başına ortalama: <b>{average:.1f}</b>",
+                "ru": f"В среднем за {bucket_name}: <b>{average:.1f}</b>",
+                "en": f"Average per {bucket_name}: <b>{average:.1f}</b>",
+            },
+            lang,
+        ),
     ]
 
     if mode == "split" and snapshot.service_totals:
@@ -361,7 +444,19 @@ def build_stats_caption(period: str, snapshot: StatsSnapshot, mode: str = "total
             key=lambda item: (-item[1], SERVICE_ORDER.index(item[0]) if item[0] in SERVICE_ORDER else len(SERVICE_ORDER)),
         )[:3]
         if top_services:
-            lines.extend(["", "<b>Top platforms</b>"])
+            lines.extend(
+                [
+                    "",
+                    tr_text(
+                        {
+                            "tr": "<b>En popüler platformlar</b>",
+                            "ru": "<b>Топ платформ</b>",
+                            "en": "<b>Top platforms</b>",
+                        },
+                        lang,
+                    ),
+                ]
+            )
             for service, count in top_services:
                 share = (count / snapshot.total_downloads) * 100 if snapshot.total_downloads else 0.0
                 emoji = SERVICE_EMOJI.get(service, "")

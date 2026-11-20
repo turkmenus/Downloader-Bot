@@ -105,7 +105,7 @@ async def test_antiflood_blocks_callback_queries_over_limit(monkeypatch):
     assert await middleware(handler, event, {}) == "handled"
     assert await middleware(handler, event, {}) is None
     assert handler.await_count == 2
-    event.answer.assert_awaited_once_with("Too many requests. Please slow down for a few seconds.", show_alert=False)
+    event.answer.assert_awaited_once_with("Çok fazla istek gönderdiniz. Lütfen birkaç saniye yavaşlayın.", show_alert=False)
 
 
 @pytest.mark.asyncio

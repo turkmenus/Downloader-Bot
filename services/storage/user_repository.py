@@ -5,6 +5,7 @@ from sqlalchemy import case, delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
+from services.i18n import DEFAULT_LANGUAGE
 from services.logger import logger as logging
 from services.settings import SETTING_DISABLED, SETTING_FIELDS, SETTING_VALUES, normalize_setting_value
 from services.storage.models import (
@@ -418,6 +419,7 @@ class UserRepositoryMixin:
                         "video_quality": getattr(settings, "video_quality", None) or "best",
                         "as_document": getattr(settings, "as_document", None) or SETTING_DISABLED,
                         "audio_format": getattr(settings, "audio_format", None) or "mp3",
+                        "language": getattr(settings, "language", None) or DEFAULT_LANGUAGE,
                     }
                     self._settings_cache[user_id_int] = (now, payload)
                     return dict(payload)

@@ -1,6 +1,7 @@
 import messages as bm
 import messages.admin_messages as admin_bm
 import pytest
+from services.i18n import language_scope
 
 
 def test_captions_truncates_to_telegram_media_limit():
@@ -8,7 +9,7 @@ def test_captions_truncates_to_telegram_media_limit():
     out = bm.captions("on", long_text, "t.me/testbot")
     assert isinstance(out, str)
     assert len(out) <= 1024
-    assert "Powered by" in out
+    assert "MaxLoad" in out
 
 
 def test_captions_escapes_html_in_user_text():
@@ -61,7 +62,8 @@ def test_captions_supports_larger_limits_for_plain_messages():
     ],
 )
 def test_user_message_factories_return_expected_text(factory, expected):
-    assert expected in factory()
+    with language_scope("en"):
+        assert expected in factory()
 
 
 @pytest.mark.parametrize(
@@ -72,22 +74,25 @@ def test_user_message_factories_return_expected_text(factory, expected):
         ("info_buttons", "Info Buttons"),
         ("url_button", "URL Button"),
         ("audio_button", "MP3 Button"),
+        ("language", "Language"),
     ],
 )
 def test_get_field_text_returns_expected_descriptions(field, expected):
-    assert expected in bm.get_field_text(field)
+    with language_scope("en"):
+        assert expected in bm.get_field_text(field)
 
 
 def test_user_message_formatters_include_dynamic_values():
-    assert "3/5" in bm.retrying_again_status(3, 5)
-    assert "My Chat" in bm.join_group("My Chat")
-    assert "My Chat" in bm.admin_rights_granted("My Chat")
-    assert bm.inline_photo_title("TikTok") == "TikTok Photo"
-    assert bm.inline_album_title("Instagram") == "Instagram Album"
-    assert bm.inline_photos_title("Pinterest") == "Pinterest Photos"
-    assert "TikTok photos" in bm.inline_photos_not_supported("TikTok")
-    assert "YouTube video" in bm.inline_send_video_prompt("YouTube")
-    assert "SoundCloud audio" in bm.inline_send_audio_prompt("SoundCloud")
+    with language_scope("en"):
+        assert "3/5" in bm.retrying_again_status(3, 5)
+        assert "My Chat" in bm.join_group("My Chat")
+        assert "My Chat" in bm.admin_rights_granted("My Chat")
+        assert bm.inline_photo_title("TikTok") == "TikTok Photo"
+        assert bm.inline_album_title("Instagram") == "Instagram Album"
+        assert bm.inline_photos_title("Pinterest") == "Pinterest Photos"
+        assert "TikTok photos" in bm.inline_photos_not_supported("TikTok")
+        assert "YouTube video" in bm.inline_send_video_prompt("YouTube")
+        assert "SoundCloud audio" in bm.inline_send_audio_prompt("SoundCloud")
 
 
 @pytest.mark.parametrize(

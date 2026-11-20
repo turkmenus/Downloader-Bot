@@ -153,7 +153,7 @@ async def test_inline_pinterest_query_returns_send_button(monkeypatch):
     assert len(results) == 1
     result = results[0]
     assert result.title == "Pinterest Video"
-    assert result.reply_markup.inline_keyboard[0][0].text == "Send video inline"
+    assert result.reply_markup.inline_keyboard[0][0].text == "Videoyu inline gönder"
     assert result.thumbnail_url == pinterest.get_inline_service_icon("pinterest")
     token = result.id.removeprefix("pinterest_inline:")
     request = get_inline_video_request(token)
@@ -370,8 +370,8 @@ async def test_inline_pinterest_query_returns_send_button_for_single_photo(monke
     results = query.answer.await_args.args[0]
     assert len(results) == 1
     result = results[0]
-    assert result.title == "Pinterest Photo"
-    assert result.reply_markup.inline_keyboard[0][0].text == "Send photo inline"
+    assert result.title == "Pinterest Fotoğraf"
+    assert result.reply_markup.inline_keyboard[0][0].text == "Fotoğrafı inline gönder"
     assert result.thumbnail_url == "https://cdn.example.com/photo.jpg"
 
 

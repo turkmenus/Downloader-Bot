@@ -91,7 +91,7 @@ async def handle_tiktok_inline_query(
                 InlineQueryResultArticle(
                     id=f"tiktok_inline:{token}",
                     title="TikTok Video",
-                    description=info.description or "Press the button to send this video inline.",
+                    description=info.description or bm.inline_press_to_send_video(),
                     thumbnail_url=info.cover or get_inline_service_icon("tiktok"),
                     input_message_content=types.InputTextMessageContent(
                         message_text=bm.inline_send_video_prompt("TikTok"),
@@ -121,14 +121,14 @@ async def handle_tiktok_inline_query(
                 results.append(
                     InlineQueryResultArticle(
                         id=f"tiktok_inline:{token}",
-                        title="TikTok Photo",
-                        description=info.description if info and info.description else "Press the button to send this photo inline.",
+                        title=bm.inline_photo_title("TikTok"),
+                        description=info.description if info and info.description else bm.inline_press_to_send_photo(),
                         thumbnail_url=first_photo,
                         input_message_content=types.InputTextMessageContent(
-                            message_text="TikTok photo is being prepared...\nIf it does not start automatically, tap the button below.",
+                            message_text=bm.inline_send_photo_prompt("TikTok"),
                         ),
                         reply_markup=kb.inline_send_media_keyboard(
-                            "Send photo inline",
+                            bm.inline_send_photo_button(),
                             f"inline:tiktok:{token}",
                         ),
                     )

@@ -205,6 +205,7 @@ async def test_upsert_chat_and_settings(database):
         "as_document": "off",
         "audio_format": "mp3",
         "file_button": "off",
+        "language": "tr",
     }
 
     await database.set_user_setting(1, "captions", "on")

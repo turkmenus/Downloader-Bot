@@ -30,10 +30,10 @@ class RawAnswerInlineQuery(TelegramMethod[bool]):
 
 def _default_inline_button_text(media_kind: str) -> str:
     if media_kind == "photo":
-        return "Send photo inline"
+        return bm.inline_send_photo_button()
     if media_kind == "audio":
-        return "Send audio inline"
-    return "Send video inline"
+        return bm.inline_send_audio_button()
+    return bm.inline_send_video_button()
 
 
 def build_inline_status_editor(
@@ -170,7 +170,7 @@ def _build_inline_article_from_photo(
         payload.get("caption")
         or payload.get("description")
         or payload.get("title")
-        or "Open this result in the bot."
+        or bm.inline_open_in_bot_desc()
     )
     parse_mode = payload.get("parse_mode")
     return types.InlineQueryResultArticle(
@@ -324,7 +324,7 @@ async def run_inline_send_callback(
     sender_fn: Callable[..., Awaitable[None]],
 ) -> None:
     if not call.inline_message_id:
-        await call.answer("This button works only in inline mode.", show_alert=True)
+        await call.answer(bm.inline_mode_only(), show_alert=True)
         return
 
     token = call.data.removeprefix(prefix)

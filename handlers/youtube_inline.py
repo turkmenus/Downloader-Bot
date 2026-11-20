@@ -96,13 +96,13 @@ async def handle_youtube_music_inline_query(
             types.InlineQueryResultArticle(
                 id=f"ytmusic_inline:{token}",
                 title="YouTube Music",
-                description=yt.get("title") or "Press the button to send this audio inline.",
+                description=yt.get("title") or bm.inline_press_to_send_audio(),
                 thumbnail_url=get_youtube_thumbnail_url_fn(yt) or get_inline_service_icon("youtube"),
                 input_message_content=types.InputTextMessageContent(
                     message_text=bm.inline_send_audio_prompt("YouTube"),
                 ),
                 reply_markup=kb.inline_send_media_keyboard(
-                    "Send audio inline",
+                    bm.inline_send_audio_button(),
                     f"inline:ytmusic:{token}",
                 ),
             )
@@ -150,13 +150,13 @@ async def handle_youtube_video_inline_query(
             types.InlineQueryResultArticle(
                 id=f"youtube_inline:{token}",
                 title="YouTube Video",
-                description=yt.get("title") or "Press the button to send this video inline.",
+                description=yt.get("title") or bm.inline_press_to_send_video(),
                 thumbnail_url=get_youtube_thumbnail_url_fn(yt) or get_inline_service_icon("youtube"),
                 input_message_content=types.InputTextMessageContent(
                     message_text=bm.inline_send_video_prompt("YouTube"),
                 ),
                 reply_markup=kb.inline_send_media_keyboard(
-                    "Send video inline",
+                    bm.inline_send_video_button(),
                     f"inline:youtube:{token}",
                 ),
             )
@@ -199,7 +199,7 @@ async def send_inline_youtube_music(
         inline_message_id=inline_message_id,
         callback_data_factory=lambda _media_kind: f"inline:ytmusic:{token}",
         safe_edit_inline_text_fn=safe_edit_inline_text_fn,
-        button_text="Send audio inline",
+        button_text=bm.inline_send_audio_button(),
     )
 
     try:
@@ -458,6 +458,6 @@ async def send_inline_youtube_video(
         callback_data=f"inline:youtube:{token}",
         plan_fn=_plan,
         safe_edit_inline_text_fn=safe_edit_inline_text_fn,
-        button_text="Send video inline",
+        button_text=bm.inline_send_video_button(),
         log=logging,
     )

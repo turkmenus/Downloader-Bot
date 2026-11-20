@@ -9,6 +9,7 @@ from aiogram.enums import ChatType
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 
 import messages as bm
+from services.i18n import tr_text
 from services.logger import logger as logging
 from services.download.queue import QueueTicket
 from utils.download_manager import (
@@ -468,32 +469,48 @@ def _format_bytes(num_bytes: int) -> str:
 
 
 def _format_eta(seconds: Optional[float]) -> str:
+    label = tr_text({"tr": "Tahmini", "ru": "Ост.", "en": "ETA"})
     if seconds is None:
-        return "ETA: --:--"
+        return f"{label}: --:--"
     total = max(0, int(seconds))
     minutes, sec = divmod(total, 60)
     hours, minutes = divmod(minutes, 60)
     if hours > 0:
-        return f"ETA: {hours:02d}:{minutes:02d}:{sec:02d}"
-    return f"ETA: {minutes:02d}:{sec:02d}"
+        return f"{label}: {hours:02d}:{minutes:02d}:{sec:02d}"
+    return f"{label}: {minutes:02d}:{sec:02d}"
 
 
 def _format_eta_short(seconds: Optional[float]) -> str:
+    label = tr_text({"tr": "Tahmini", "ru": "Ост.", "en": "ETA"})
     if seconds is None:
-        return "ETA --:--"
+        return f"{label} --:--"
     total = max(0, int(seconds))
     minutes, sec = divmod(total, 60)
     hours, minutes = divmod(minutes, 60)
     if hours > 0:
-        return f"ETA {hours}:{minutes:02d}:{sec:02d}"
-    return f"ETA {minutes}:{sec:02d}"
+        return f"{label} {hours}:{minutes:02d}:{sec:02d}"
+    return f"{label} {minutes}:{sec:02d}"
 
 
 def build_queue_status(label: str, ticket: QueueTicket) -> str:
-    return (
-        f"Queueing {label}...\n"
-        f"Position: {ticket.position}\n"
-        f"Workers: {ticket.active_workers}"
+    return tr_text(
+        {
+            "tr": (
+                f"{label} sıraya alınıyor...\n"
+                f"Sıra: {ticket.position}\n"
+                f"Aktif işçi: {ticket.active_workers}"
+            ),
+            "ru": (
+                f"{label} добавлено в очередь...\n"
+                f"Позиция: {ticket.position}\n"
+                f"Воркеров: {ticket.active_workers}"
+            ),
+            "en": (
+                f"Queueing {label}...\n"
+                f"Position: {ticket.position}\n"
+                f"Workers: {ticket.active_workers}"
+            ),
+        }
     )
 
 
@@ -522,16 +539,40 @@ def build_progress_status(label: str, progress: DownloadProgress) -> str:
 
 def build_rate_limit_text(retry_after: float) -> str:
     wait = max(1, int(round(retry_after)))
-    return (
-        "Too many requests from your account right now.\n"
-        f"Please wait {wait}s and try again."
+    return tr_text(
+        {
+            "tr": (
+                "Hesabınızdan şu anda çok fazla istek geldi.\n"
+                f"Lütfen {wait} saniye bekleyip tekrar deneyin."
+            ),
+            "ru": (
+                "Слишком много запросов с вашего аккаунта.\n"
+                f"Пожалуйста, подождите {wait} сек. и попробуйте снова."
+            ),
+            "en": (
+                "Too many requests from your account right now.\n"
+                f"Please wait {wait}s and try again."
+            ),
+        }
     )
 
 
 def build_queue_busy_text(position: int) -> str:
-    return (
-        "The download queue is busy right now.\n"
-        f"Your next request position would be around #{position}."
+    return tr_text(
+        {
+            "tr": (
+                "İndirme kuyruğu şu anda yoğun.\n"
+                f"Sonraki isteğiniz yaklaşık #{position}. sırada olacak."
+            ),
+            "ru": (
+                "Очередь загрузок сейчас перегружена.\n"
+                f"Ваш следующий запрос будет примерно #{position} в очереди."
+            ),
+            "en": (
+                "The download queue is busy right now.\n"
+                f"Your next request position would be around #{position}."
+            ),
+        }
     )
 
 
