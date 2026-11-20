@@ -1,0 +1,68 @@
+services:
+  downloader-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN:?BOT_TOKEN is required}
+      ADMIN_ID: ${ADMIN_ID:?ADMIN_ID is required}
+      CUSTOM_API_URL: ${CUSTOM_API_URL:-http://tg-bot-api:8081}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://bot_user:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/downloader_bot}
+      YTDLP_YOUTUBE_COOKIES_FILE: ${YTDLP_YOUTUBE_COOKIES_FILE:-cookies/youtube.txt}
+    volumes:
+      - downloader_downloads:/app/downloads
+      - downloader_log:/app/logs
+      - downloader_cookies:/app/cookies
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - default
+      - tg-bot-api_default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: downloader_bot
+      POSTGRES_USER: bot_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bot_user -d downloader_bot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  default:
+    driver: bridge
+  tg-bot-api_default:
+    external: true
+
+volumes:
+  downloader_downloads:
+  downloader_log:
+  downloader_cookies:
+  postgres_data:
